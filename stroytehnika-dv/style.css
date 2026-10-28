@@ -27,9 +27,9 @@ a{color:inherit}
 .hero-photo img{display:block;width:100%;height:100%;object-fit:cover}
 .have{padding:44px 0;background:var(--card);border-block:1px solid var(--line)}
 .section-sub{margin:0 0 24px;color:var(--mute);max-width:60ch}
-.tiles{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+.tiles{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
 .tile{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:16px}
-.tile b{display:block;font-size:18px}.tile span{display:block;margin-top:4px;color:var(--mute);font-size:14px}
+.tile b{display:block;font-size:18px;overflow-wrap:anywhere}.tile span{display:block;margin-top:4px;color:var(--mute);font-size:14px}
 .services{margin-top:28px}.services h3{font-size:18px;margin-bottom:10px}
 .services ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
 .services li{padding:8px 14px;background:var(--sand);border-radius:999px;font-size:15px}
@@ -72,7 +72,7 @@ input:focus,select:focus{outline:3px solid var(--acc);outline-offset:1px;border-
 .fail{padding:16px;color:#a00}
 @media(min-width:720px){
   .nav{display:flex}
-  .tiles{grid-template-columns:repeat(3,1fr)}
+  .tiles{grid-template-columns:repeat(3,minmax(0,1fr))}
   .machines{grid-template-columns:1fr 1fr}
   .fields{grid-template-columns:1fr 1fr}.fields .wide{grid-column:1/-1}
   .steps{grid-template-columns:repeat(3,1fr)}
@@ -91,9 +91,8 @@ input:focus,select:focus{outline:3px solid var(--acc);outline-offset:1px;border-
 .gallery{padding:8px 0 0}
 .gal{display:grid;gap:10px;grid-template-columns:1fr 1fr}
 .gal img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:var(--r);background:var(--sand)}
-.tile{display:grid;gap:4px;grid-template-columns:44px 1fr;align-items:start}
-.tile svg{grid-row:1/3;width:44px;height:28px;color:var(--acc);margin-top:4px}
-.tile b,.tile span{grid-column:2}
+.tile{display:block;min-width:0}
+.tile svg{display:block;width:44px;height:28px;color:var(--acc);margin-bottom:8px}
 .machine-body{grid-template-columns:44px 1fr;column-gap:12px}
 .machine-body svg{grid-row:1/4;width:44px;height:28px;color:var(--acc);margin-top:3px}
 .machine-body span{grid-column:2}
