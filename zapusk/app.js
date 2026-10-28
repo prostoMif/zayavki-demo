@@ -141,7 +141,7 @@
     j._ovr = key;
     return j;
   }
-  fetch('company.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { C = override(j); build();
+  fetch('company.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { C = override(j); C.machines = C.machines.filter(function (m) { return !m.hidden; }); build();
       if (C._ovr) { var b = $('#ovr'); b.hidden = false; $('#ovr-reset').addEventListener('click', function (e) { e.preventDefault(); try { localStorage.removeItem(C._ovr); } catch (x) {} location.reload(); }); } })
     .catch(function () { document.body.insertBefore(el('p', 'fail', 'Не удалось загрузить данные страницы.'), document.body.firstChild); });
 })();
