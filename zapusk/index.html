@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Аренда спецтехники</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="demo">Демо-страница. Ставки в расчёте примерные, подставим ваши.</div>
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand"><b data-c="name"></b><span data-c="city"></span></div>
+    <nav class="nav"><a href="#have">Что есть</a><a href="#calc">Цена</a><a href="#contacts">Контакты</a></nav>
+    <a class="top-tel" data-tel="text" href="#"></a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-in">
+    <div class="hero-text">
+      <p class="kicker" data-c="kicker"></p>
+      <h1 data-c="name"></h1>
+      <p class="lead" data-c="about"></p>
+      <p class="rating" id="rating" hidden></p>
+      <div class="cta">
+        <a class="btn btn-main" href="#calc">Узнать цену</a>
+        <a class="btn" data-tel href="#">Позвонить</a>
+        <a class="btn" data-wa target="_blank" rel="noopener" href="#">WhatsApp</a>
+        <a class="btn" id="hero-tg" data-tg target="_blank" rel="noopener" href="#">Telegram</a>
+      </div>
+    </div>
+    <figure class="hero-photo" id="hero-photo" hidden><img id="hero-img" alt=""></figure>
+  </div>
+</section>
+
+<section class="have" id="have">
+  <div class="wrap">
+    <h2>Что у нас есть</h2>
+    <p class="section-sub" id="have-sub"></p>
+    <div id="fleet-list" class="tiles"></div>
+    <div id="services" class="services" hidden>
+      <h3>Также</h3>
+      <ul id="services-list"></ul>
+    </div>
+  </div>
+</section>
+
+<section class="how">
+  <div class="wrap">
+    <h2>Как заказать</h2>
+    <ol class="steps">
+      <li><b>Выберите технику</b><span>и на сколько часов она нужна</span></li>
+      <li><b>Узнайте примерную цену</b><span>тут же, без звонка</span></li>
+      <li><b>Отправьте заявку</b><span>она придёт нам в мессенджер уже с деталями</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="calc" id="calc">
+  <div class="wrap">
+    <h2>Узнайте примерную цену</h2>
+    <div class="calc-grid">
+      <div class="calc-form">
+        <h3 class="step"><i>1</i>Что нужно</h3>
+        <div id="machines" class="machines"></div>
+
+        <h3 class="step"><i>2</i>Сколько часов</h3>
+        <div class="stepper">
+          <button type="button" id="minus" aria-label="Меньше часов">−</button>
+          <output id="hours-val">4 ч</output>
+          <button type="button" id="plus" aria-label="Больше часов">+</button>
+        </div>
+
+        <h3 class="step"><i>3</i>Когда и куда</h3>
+        <div class="fields">
+          <label>Дата<input type="date" id="date"></label>
+          <label>Район<select id="zone"></select></label>
+          <label class="wide">Адрес<input type="text" id="addr" placeholder="Улица, дом или ориентир" autocomplete="street-address"></label>
+        </div>
+
+        <h3 class="step"><i>4</i>Как с вами связаться</h3>
+        <div class="fields">
+          <label>Имя<input type="text" id="name" autocomplete="name"></label>
+          <label>Телефон<input type="tel" id="tel" placeholder="+7" autocomplete="tel"></label>
+        </div>
+      </div>
+
+      <aside class="result" id="result">
+        <p id="need" class="need">Выберите технику, и здесь появится цена.</p>
+        <div id="send" hidden>
+          <p class="res-label">Примерная цена</p>
+          <p class="res-price">от <span id="price-from"></span><br>до <span id="price-to"></span></p>
+          <p class="res-sum"><span id="sum-machine"></span></p>
+          <p class="res-note">Точную цену назовёт менеджер после уточнения деталей. <span class="example">Ставки здесь примерные.</span></p>
+          <p class="hint" id="tel-hint">Укажите телефон, чтобы отправить заявку.</p>
+          <a class="btn btn-main" id="btn-wa" href="#" aria-disabled="true">Отправить в WhatsApp</a>
+          <a class="btn" id="btn-tg" href="#" aria-disabled="true">Отправить в Telegram</a>
+          <p class="hint" id="tg-note" hidden>Текст заявки скопирован. Вставьте его в открывшийся чат Telegram.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="contacts" id="contacts">
+  <div class="wrap">
+    <h2>Контакты</h2>
+    <dl class="cl">
+      <dt>Адрес</dt><dd><span data-c="address"></span>, <span data-c="city"></span></dd>
+      <dt>Время работы</dt><dd data-c="hours"></dd>
+      <dt>Телефоны</dt><dd id="phones"></dd>
+    </dl>
+    <p><a class="btn" data-map target="_blank" rel="noopener" href="#">Открыть на карте</a></p>
+  </div>
+</section>
+<footer class="foot"><div class="wrap"><span data-c="name"></span>, <span data-c="city"></span></div></footer>
+<script src="app.js"></script>
+</body>
+</html>
