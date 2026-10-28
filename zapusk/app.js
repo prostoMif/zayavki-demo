@@ -127,6 +127,21 @@
     render();
   }
 
-  fetch('company.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { C = j; build(); })
+  function override(j) {
+    if (!j.demo) return j;
+    var key = 'demo-override:' + j.name + '|' + j.phone, o;
+    try { o = JSON.parse(localStorage.getItem(key)); } catch (e) { o = null; }
+    if (!o) return j;
+    if (o.machines) j.machines = o.machines.filter(function (m) { return !m.hidden; });
+    if (o.services) j.services = o.services;
+    if (o.photo) j.photo = o.photo;
+    if (o.about) j.about = o.about;
+    j.zones.forEach(function (z) { var v = (o.zones || {})[z.id]; if (v) { z.from = v.from; z.to = v.to; } });
+    ['spread', 'phone', 'phone_display', 'whatsapp', 'hours', 'address', 'rates_are_example'].forEach(function (k) { if (o[k] != null) j[k] = o[k]; });
+    j._ovr = key;
+    return j;
+  }
+  fetch('company.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { C = override(j); build();
+      if (C._ovr) { var b = $('#ovr'); b.hidden = false; $('#ovr-reset').addEventListener('click', function (e) { e.preventDefault(); try { localStorage.removeItem(C._ovr); } catch (x) {} location.reload(); }); } })
     .catch(function () { document.body.insertBefore(el('p', 'fail', 'Не удалось загрузить данные страницы.'), document.body.firstChild); });
 })();

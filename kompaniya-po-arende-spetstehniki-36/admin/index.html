@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Панель владельца (демо)</title>
+<style>
+:root{--bg:#f4efe6;--card:#fffdf8;--ink:#2a2620;--mute:#6f675a;--line:#ddd3bf;--acc:#b5652a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,Arial,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:16px}h1{font-size:26px;margin:8px 0 12px}h2{font-size:19px;margin:26px 0 8px}
+.demo{background:var(--ink);color:#fff;text-align:center;font-size:13px;padding:6px 12px}
+.how{background:#f6e6d6;border:1px solid #e2c3a3;border-radius:10px;padding:14px 16px;margin-bottom:16px}.how ol{margin:6px 0 0;padding-left:20px}.how li{margin:2px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px}
+label{display:grid;gap:4px;font-size:14px;color:var(--mute);margin-bottom:10px}
+input[type=text],input[type=number],textarea{width:100%;min-height:46px;padding:0 12px;border:2px solid var(--line);border-radius:8px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.row{display:grid;gap:10px;grid-template-columns:1fr 1fr}.chk{display:flex;gap:10px;align-items:center;color:var(--ink);font-size:16px}.chk input{width:22px;height:22px}
+.m b{display:block;margin-bottom:8px}textarea{padding:10px 12px;font:inherit;font-size:16px;resize:vertical}#pv{display:block;max-width:100%;max-height:220px;border-radius:8px;margin-bottom:10px}.card .b{min-height:40px;padding:0 14px;margin-top:6px}.hint{color:var(--mute);font-size:14px;margin:0 0 8px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.b{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border:2px solid var(--ink);border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.b.main{background:var(--acc);border-color:var(--acc);color:#fff}
+.err{background:#fde7e4;border:1px solid #e5a49b;border-radius:8px;padding:10px 14px;margin-bottom:12px}.ok{background:#e7f3df;border:1px solid #a9cf93;border-radius:8px;padding:10px 14px;margin-bottom:12px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+</style></head><body>
+<div class="demo">Демо-панель: изменения сохраняются только в вашем браузере и видны только вам.</div>
+<div class="w">
+<h1>Панель владельца</h1>
+<div class="how"><b>Как это работает</b>
+<ol><li>Поменяйте фото, описание, технику и ставки, услуги или контакты.</li><li>Нажмите «Сохранить».</li><li>Откройте страницу: цены и статус уже новые. Клиент увидит то же самое.</li></ol>
+<p class="hint" style="margin:8px 0 0">В настоящей панели вход по паролю, и изменения видят все клиенты сайта.</p></div>
+<div id="msg"></div>
+<form id="f" novalidate></form>
+<div class="btns"><button class="b main" id="save" type="button">Сохранить</button><a class="b" href="../">Открыть страницу</a><button class="b" id="reset" type="button">Сбросить к исходным</button></div>
+</div>
+<script>
+'use strict';
+(function () {
+  var C, $ = function (s) { return document.querySelector(s); };
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function field(label, attrs, tag) { var l = el('label', null, label), i = el(tag || 'input'); Object.keys(attrs).forEach(function (k) { i[k] = attrs[k]; }); l.appendChild(i); return { l: l, i: i }; }
+  var ins = { cards: [] }, o = {}, photoData = null, photoReset = false, seq = 0;
+  function key() { return 'demo-override:' + C.name + '|' + C.phone; }
+  function load() { try { return JSON.parse(localStorage.getItem(key())) || {}; } catch (e) { return {}; } }
+  function digits(s) { return String(s).replace(/\D/g, ''); }
+  function say(cls, text) { var m = $('#msg'); m.textContent = ''; if (text) m.appendChild(el('div', cls, text)); }
+  function chk(label, on) { var l = el('label', 'chk'), c = el('input'); c.type = 'checkbox'; c.checked = on; l.appendChild(c); l.appendChild(document.createTextNode(' ' + label)); return { l: l, i: c }; }
+
+  function machineCard(m, isNew) {
+    var c = el('div', 'card m'), r = {};
+    r.id = m.id; r.isNew = !!isNew;
+    r.name = field('Название', { type: 'text', maxLength: 60, value: m.name }); c.appendChild(r.name.l);
+    r.desc = field('Описание (одна строка)', { type: 'text', maxLength: 100, value: m.desc || '' }); c.appendChild(r.desc.l);
+    var row = el('div', 'row');
+    r.rate = field('Ставка, ₽ в час', { type: 'number', min: 100, max: 1000000, inputMode: 'numeric', value: m.rate });
+    r.min = field('Минимум часов', { type: 'number', min: 1, max: 24, inputMode: 'numeric', value: m.min_hours });
+    row.appendChild(r.rate.l); row.appendChild(r.min.l); c.appendChild(row);
+    r.busy = chk('Сейчас занята', !!m.busy); c.appendChild(r.busy.l);
+    r.show = chk('Показывать на странице', !m.hidden); c.appendChild(r.show.l);
+    var del = el('button', 'b', 'Удалить'); del.type = 'button'; del.addEventListener('click', function () { c.remove(); r.gone = true; }); c.appendChild(del);
+    r.card = c; ins.cards.push(r); $('#machines').appendChild(c);
+  }
+  function build() {
+    o = load(); var f = $('#f');
+    f.appendChild(el('h2', null, 'Фото'));
+    var pc = el('div', 'card'), img = el('img'); img.id = 'pv'; img.alt = ''; img.src = o.photo || ('../' + (C.photo || ''));
+    img.addEventListener('error', function () { img.hidden = true; });
+    pc.appendChild(img);
+    pc.appendChild(el('p', 'hint', 'Главное фото на первом экране. Выберите картинку с телефона или компьютера, она сожмётся автоматически.'));
+    var fi = el('input'); fi.type = 'file'; fi.accept = 'image/*'; fi.id = 'pf'; pc.appendChild(fi);
+    fi.addEventListener('change', function () { if (fi.files[0]) shrink(fi.files[0]); });
+    var rs = chk('Вернуть исходное фото', false); rs.i.addEventListener('change', function () { photoReset = rs.i.checked; }); pc.appendChild(rs.l);
+    f.appendChild(pc);
+    f.appendChild(el('h2', null, 'Описание компании'));
+    var dc = el('div', 'card'); ins.about = field('Чем занимаетесь (до 300 символов)', { maxLength: 300, rows: 3 }, 'textarea'); ins.about.i.value = o.about != null ? o.about : C.about; dc.appendChild(ins.about.l); f.appendChild(dc);
+    f.appendChild(el('h2', null, 'Техника'));
+    f.appendChild(el('p', 'hint', 'Название, ставка за час, минимум часов. «Занята»: клиент не сможет её выбрать. Можно скрыть, удалить или добавить свою.'));
+    var mw = el('div'); mw.id = 'machines'; f.appendChild(mw);
+    (o.machines || C.machines).forEach(function (m) { machineCard(m, false); });
+    var add = el('button', 'b', '+ Добавить технику'); add.type = 'button';
+    add.addEventListener('click', function () { machineCard({ id: 'new' + (++seq) + Date.now().toString(36), name: '', desc: '', rate: 3000, min_hours: 4 }, true); });
+    f.appendChild(add);
+    f.appendChild(el('h2', null, 'Услуги'));
+    var sc = el('div', 'card'); ins.services = field('Что ещё делаете. Одна услуга на строку (до 20)', { rows: 5 }, 'textarea'); ins.services.i.value = (o.services || C.services || []).join('\n'); sc.appendChild(ins.services.l); f.appendChild(sc);
+    f.appendChild(el('h2', null, 'Районы и доставка'));
+    f.appendChild(el('p', 'hint', 'Сколько прибавить к цене за выезд: от какой суммы до какой.'));
+    ins.z = {};
+    C.zones.forEach(function (z) {
+      var v = (o.zones || {})[z.id] || {}, c = el('div', 'card m'); c.appendChild(el('b', null, z.name));
+      var row = el('div', 'row');
+      var a = field('От, ₽', { type: 'number', min: 0, inputMode: 'numeric', value: v.from != null ? v.from : z.from });
+      var b = field('До, ₽', { type: 'number', min: 0, inputMode: 'numeric', value: v.to != null ? v.to : z.to });
+      row.appendChild(a.l); row.appendChild(b.l); c.appendChild(row); f.appendChild(c); ins.z[z.id] = { from: a.i, to: b.i };
+    });
+    var c = el('div', 'card');
+    ins.spread = field('Разброс цены, % (на сколько «до» выше «от»)', { type: 'number', min: 0, max: 100, inputMode: 'numeric', value: o.spread != null ? Math.round(o.spread * 100) : Math.round(C.spread * 100) });
+    c.appendChild(ins.spread.l);
+    ins.confirmed = chk('Ставки мои, убрать пометку «примерные»', o.rates_are_example != null ? !o.rates_are_example : !C.rates_are_example); c.appendChild(ins.confirmed.l); f.appendChild(c);
+    f.appendChild(el('h2', null, 'Контакты'));
+    var cc = el('div', 'card');
+    ins.phone = field('Телефон для звонков (11 цифр)', { type: 'text', inputMode: 'tel', value: o.phone || C.phone });
+    ins.whatsapp = field('WhatsApp (цифры с кодом страны)', { type: 'text', inputMode: 'numeric', value: o.whatsapp != null ? o.whatsapp : (C.whatsapp || '') });
+    ins.hours = field('График работы', { type: 'text', maxLength: 120, value: o.hours || C.hours });
+    ins.address = field('Адрес', { type: 'text', maxLength: 160, value: o.address != null ? o.address : (C.address || '') });
+    [ins.phone, ins.whatsapp, ins.hours, ins.address].forEach(function (x) { cc.appendChild(x.l); }); f.appendChild(cc);
+  }
+  function shrink(file) {
+    if (!/^image\//.test(file.type)) { say('err', 'Это не картинка.'); return; }
+    var im = new Image(), url = URL.createObjectURL(file);
+    im.onload = function () {
+      var k = Math.min(1, 1400 / Math.max(im.width, im.height)), cv = document.createElement('canvas');
+      cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k);
+      cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+      photoData = cv.toDataURL('image/jpeg', 0.8); $('#pv').hidden = false; $('#pv').src = photoData; URL.revokeObjectURL(url);
+    };
+    im.onerror = function () { say('err', 'Не удалось открыть картинку.'); };
+    im.src = url;
+  }
+  function int(i, min, max) { var s = i.value.trim(); if (!/^\d{1,9}$/.test(s)) return null; var n = +s; return n < min || n > max ? null : n; }
+  function save() {
+    var errs = [], out = { machines: [], zones: {} };
+    ins.cards.filter(function (r) { return !r.gone; }).forEach(function (r) {
+      var nm = r.name.i.value.trim(), rt = int(r.rate.i, 100, 1000000), mh = int(r.min.i, 1, 24);
+      if (!nm) errs.push('У одной из машин нет названия.');
+      if (rt === null) errs.push('Ставка «' + (nm || 'без названия') + '»: целое число от 100 до 1 000 000.');
+      if (mh === null) errs.push('Минимум часов «' + (nm || 'без названия') + '»: от 1 до 24.');
+      if (nm && rt !== null && mh !== null) out.machines.push({ id: r.id, name: nm.slice(0, 60), desc: r.desc.i.value.trim().slice(0, 100), rate: rt, min_hours: mh, busy: r.busy.i.checked, hidden: !r.show.i.checked });
+    });
+    if (!out.machines.length && !errs.length) errs.push('Нужна хотя бы одна машина.');
+    if (out.machines.length && out.machines.every(function (m) { return m.hidden; })) errs.push('Покажите на странице хотя бы одну машину.');
+    C.zones.forEach(function (z) {
+      var a = int(ins.z[z.id].from, 0, 1000000), b = int(ins.z[z.id].to, 0, 1000000);
+      if (a === null || b === null || b < a) errs.push('Район «' + z.name + '»: «от» и «до» целые, «до» не меньше «от».'); else out.zones[z.id] = { from: a, to: b };
+    });
+    var sp = int(ins.spread.i, 0, 100); if (sp === null) errs.push('Разброс цены: целое число процентов от 0 до 100.'); else out.spread = sp / 100;
+    var ab = ins.about.i.value.trim(); if (!ab || ab.length > 300) errs.push('Описание: от 1 до 300 символов.'); else out.about = ab;
+    var sv = ins.services.i.value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+    if (sv.length > 20 || sv.some(function (x) { return x.length > 60; })) errs.push('Услуги: не больше 20 строк, каждая до 60 символов.'); else out.services = sv;
+    var ph = digits(ins.phone.i.value); if (!/^[78]\d{10}$/.test(ph)) errs.push('Телефон: 11 цифр, начинается с 7 или 8.'); else { ph = '7' + ph.slice(1); out.phone = '+' + ph; out.phone_display = '+7 ' + ph.slice(1, 4) + ' ' + ph.slice(4, 7) + '-' + ph.slice(7, 9) + '-' + ph.slice(9, 11); }
+    var wa = digits(ins.whatsapp.i.value); if (wa && !/^\d{10,15}$/.test(wa)) errs.push('WhatsApp: только цифры, с кодом страны.'); else out.whatsapp = wa;
+    var hr = ins.hours.i.value.trim(); if (!hr || hr.length > 120) errs.push('График работы: до 120 символов.'); else out.hours = hr;
+    var ad = ins.address.i.value.trim(); if (ad.length > 160) errs.push('Адрес: до 160 символов.'); else out.address = ad;
+    out.rates_are_example = !ins.confirmed.i.checked;
+    if (photoData && !photoReset) out.photo = photoData; else if (!photoReset && o.photo) out.photo = o.photo;
+    if (errs.length) { var d = el('div', 'err'), u = el('ul'); d.appendChild(el('b', null, 'Не сохранено:')); errs.forEach(function (e) { u.appendChild(el('li', null, e)); }); d.appendChild(u); $('#msg').textContent = ''; $('#msg').appendChild(d); window.scrollTo(0, 0); return; }
+    try { localStorage.setItem(key(), JSON.stringify(out)); say('ok', 'Сохранено. Нажмите «Открыть страницу», чтобы увидеть изменения.'); }
+    catch (e) { say('err', 'Не удалось сохранить: браузер закрыл хранилище или фото слишком большое.'); }
+    window.scrollTo(0, 0);
+  }
+  fetch('../company.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+    C = j; build();
+    $('#save').addEventListener('click', save);
+    $('#reset').addEventListener('click', function () { try { localStorage.removeItem(key()); } catch (e) {} location.reload(); });
+  }).catch(function () { say('err', 'Не удалось загрузить данные страницы.'); });
+})();
+</script></body></html>
