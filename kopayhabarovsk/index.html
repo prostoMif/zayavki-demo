@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Аренда спецтехники</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="demo">Демо-страница. Ставки в расчёте примерные, подставим ваши. <a href="admin/" style="color:#fff;font-weight:700">Посмотреть панель владельца</a></div>
+<div class="demo" id="ovr" hidden style="background:#b5652a">Показана страница с вашими изменениями из демо-панели. <a href="#" id="ovr-reset" style="color:#fff;font-weight:700">Сбросить</a></div>
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand"><b data-c="name"></b><span data-c="city"></span></div>
+    <nav class="nav"><a href="#have">Что есть</a><a href="#calc">Цена</a><a href="#contacts">Контакты</a><a class="demo own" href="admin/">Панель владельца</a></nav>
+    <a class="top-tel" data-tel="text" href="#"></a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-in">
+    <div class="hero-text">
+      <p class="kicker" data-c="kicker"></p>
+      <h1 data-c="name"></h1>
+      <p class="lead" data-c="about"></p>
+      <p class="rating" id="rating" hidden></p>
+      <div class="cta">
+        <a class="btn btn-main" href="#calc" data-t="cta_main">Узнать цену</a>
+        <a class="btn" data-tel href="#" data-t="cta_call">Позвонить</a>
+        <a class="btn" data-wa target="_blank" rel="noopener" href="#">WhatsApp</a>
+        <a class="btn" id="hero-tg" data-tg target="_blank" rel="noopener" href="#">Telegram</a>
+      </div>
+    </div>
+    <figure class="hero-photo" id="hero-photo" hidden><img id="hero-img" alt=""></figure>
+  </div>
+</section>
+
+<section class="gallery" id="gallery" hidden>
+  <div class="wrap"><div id="gallery-list" class="gal"></div></div>
+</section>
+
+<section class="have" id="have">
+  <div class="wrap">
+    <h2 data-t="have_title">Что у нас есть</h2>
+    <p class="section-sub" data-t="have_sub">Нажмите на технику, чтобы сразу посчитать цену.</p>
+    <div id="fleet-list" class="tiles"></div>
+    <div id="services" class="services" hidden>
+      <h3 data-t="services_title">Ещё делаем</h3>
+      <ul id="services-list"></ul>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <h2 data-t="how_title">Как заказать</h2>
+    <ol class="steps">
+      <li><b data-t="step1_t">Выберите технику</b><span data-t="step1_d">и на сколько часов она нужна</span></li>
+      <li><b data-t="step2_t">Посмотрите цену</b><span data-t="step2_d">она считается сразу, звонить не надо</span></li>
+      <li><b data-t="step3_t">Отправьте заявку</b><span data-t="step3_d">мы получим её в мессенджере сразу со всеми деталями</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="calc" id="calc">
+  <div class="wrap">
+    <h2 data-t="calc_title">Посчитайте цену</h2>
+    <div class="calc-grid">
+      <div class="calc-form">
+        <h3 class="step"><i>1</i>Что нужно</h3>
+        <div id="machines" class="machines"></div>
+
+        <h3 class="step"><i>2</i>Сколько часов</h3>
+        <div class="stepper">
+          <button type="button" id="minus" aria-label="Меньше часов">−</button>
+          <output id="hours-val">4 ч</output>
+          <button type="button" id="plus" aria-label="Больше часов">+</button>
+        </div>
+
+        <h3 class="step"><i>3</i>Когда и куда</h3>
+        <div class="fields">
+          <label>Дата<input type="date" id="date"></label>
+          <label>Район<select id="zone"></select></label>
+          <label class="wide">Адрес<input type="text" id="addr" placeholder="Улица, дом или ориентир" autocomplete="street-address"></label>
+        </div>
+
+        <h3 class="step"><i>4</i>Как с вами связаться</h3>
+        <div class="fields">
+          <label>Имя<input type="text" id="name" autocomplete="name"></label>
+          <label>Телефон<input type="tel" id="tel" placeholder="+7" autocomplete="tel"></label>
+        </div>
+      </div>
+
+      <aside class="result" id="result">
+        <p id="need" class="need">Выберите технику, и здесь появится цена.</p>
+        <div id="send" hidden>
+          <p class="res-label">Примерная цена</p>
+          <p class="res-price">от <span id="price-from"></span><br>до <span id="price-to"></span></p>
+          <p class="res-sum"><span id="sum-machine"></span></p>
+          <p class="res-note">Точную цену назовёт менеджер после уточнения деталей. <span class="example">Ставки здесь примерные.</span></p>
+          <p class="hint" id="tel-hint">Укажите телефон, чтобы отправить заявку.</p>
+          <a class="btn btn-main" id="btn-wa" href="#" aria-disabled="true">Отправить в WhatsApp</a>
+          <a class="btn" id="btn-tg" href="#" aria-disabled="true">Отправить в Telegram</a>
+          <p class="hint" id="tg-note" hidden>Текст заявки скопирован. Вставьте его в открывшийся чат Telegram.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="contacts" id="contacts">
+  <div class="wrap">
+    <h2 data-t="contacts_title">Контакты</h2>
+    <dl class="cl">
+      <dt>Адрес</dt><dd><span data-c="address"></span>, <span data-c="city"></span></dd>
+      <dt>Время работы</dt><dd data-c="hours"></dd>
+      <dt>Телефоны</dt><dd id="phones"></dd>
+    </dl>
+    <p><a class="btn" data-map target="_blank" rel="noopener" href="#">Открыть на карте</a></p>
+  </div>
+</section>
+<footer class="foot"><div class="wrap"><span data-c="name"></span>, <span data-c="city"></span></div></footer>
+<script src="app.js"></script>
+</body>
+</html>
