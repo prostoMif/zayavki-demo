@@ -26,8 +26,8 @@
       <p class="lead" data-c="about"></p>
       <p class="rating" id="rating" hidden></p>
       <div class="cta">
-        <a class="btn btn-main" href="#calc">Узнать цену</a>
-        <a class="btn" data-tel href="#">Позвонить</a>
+        <a class="btn btn-main" href="#calc" data-t="cta_main">Узнать цену</a>
+        <a class="btn" data-tel href="#" data-t="cta_call">Позвонить</a>
         <a class="btn" data-wa target="_blank" rel="noopener" href="#">WhatsApp</a>
         <a class="btn" id="hero-tg" data-tg target="_blank" rel="noopener" href="#">Telegram</a>
       </div>
@@ -36,32 +36,36 @@
   </div>
 </section>
 
+<section class="gallery" id="gallery" hidden>
+  <div class="wrap"><div id="gallery-list" class="gal"></div></div>
+</section>
+
 <section class="have" id="have">
   <div class="wrap">
-    <h2>Что у нас есть</h2>
-    <p class="section-sub" id="have-sub"></p>
+    <h2 data-t="have_title">Что у нас есть</h2>
+    <p class="section-sub" data-t="have_sub">Нажмите на технику, чтобы сразу посчитать цену.</p>
     <div id="fleet-list" class="tiles"></div>
     <div id="services" class="services" hidden>
-      <h3>Также</h3>
+      <h3 data-t="services_title">Ещё делаем</h3>
       <ul id="services-list"></ul>
     </div>
   </div>
 </section>
 
-<section class="how">
+<section class="how" id="how">
   <div class="wrap">
-    <h2>Как заказать</h2>
+    <h2 data-t="how_title">Как заказать</h2>
     <ol class="steps">
-      <li><b>Выберите технику</b><span>и на сколько часов она нужна</span></li>
-      <li><b>Узнайте примерную цену</b><span>тут же, без звонка</span></li>
-      <li><b>Отправьте заявку</b><span>она придёт нам в мессенджер уже с деталями</span></li>
+      <li><b data-t="step1_t">Выберите технику</b><span data-t="step1_d">и на сколько часов она нужна</span></li>
+      <li><b data-t="step2_t">Посмотрите цену</b><span data-t="step2_d">она считается сразу, звонить не надо</span></li>
+      <li><b data-t="step3_t">Отправьте заявку</b><span data-t="step3_d">мы получим её в мессенджере сразу со всеми деталями</span></li>
     </ol>
   </div>
 </section>
 
 <section class="calc" id="calc">
   <div class="wrap">
-    <h2>Узнайте примерную цену</h2>
+    <h2 data-t="calc_title">Посчитайте цену</h2>
     <div class="calc-grid">
       <div class="calc-form">
         <h3 class="step"><i>1</i>Что нужно</h3>
@@ -107,7 +111,7 @@
 
 <section class="contacts" id="contacts">
   <div class="wrap">
-    <h2>Контакты</h2>
+    <h2 data-t="contacts_title">Контакты</h2>
     <dl class="cl">
       <dt>Адрес</dt><dd><span data-c="address"></span>, <span data-c="city"></span></dd>
       <dt>Время работы</dt><dd data-c="hours"></dd>

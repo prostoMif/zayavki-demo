@@ -11,7 +11,7 @@
 label{display:grid;gap:4px;font-size:14px;color:var(--mute);margin-bottom:10px}
 input[type=text],input[type=number],textarea{width:100%;min-height:46px;padding:0 12px;border:2px solid var(--line);border-radius:8px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
 .row{display:grid;gap:10px;grid-template-columns:1fr 1fr}.chk{display:flex;gap:10px;align-items:center;color:var(--ink);font-size:16px}.chk input{width:22px;height:22px}
-.m b{display:block;margin-bottom:8px}textarea{padding:10px 12px;font:inherit;font-size:16px;resize:vertical}#pv{display:block;max-width:100%;max-height:220px;border-radius:8px;margin-bottom:10px}.card .b{min-height:40px;padding:0 14px;margin-top:6px}.hint{color:var(--mute);font-size:14px;margin:0 0 8px}
+.m b{display:block;margin-bottom:8px}textarea{padding:10px 12px;font:inherit;font-size:16px;resize:vertical}#pv{display:block;max-width:100%;max-height:220px;border-radius:8px;margin-bottom:10px}.card .b{min-height:40px;padding:0 14px;margin-top:6px}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:8px 0}.th img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px}.th .b{width:100%}.hint{color:var(--mute);font-size:14px;margin:0 0 8px}
 .btns{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
 .b{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border:2px solid var(--ink);border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
 .b.main{background:var(--acc);border-color:var(--acc);color:#fff}
@@ -34,7 +34,18 @@ input[type=text],input[type=number],textarea{width:100%;min-height:46px;padding:
   var C, $ = function (s) { return document.querySelector(s); };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function field(label, attrs, tag) { var l = el('label', null, label), i = el(tag || 'input'); Object.keys(attrs).forEach(function (k) { i[k] = attrs[k]; }); l.appendChild(i); return { l: l, i: i }; }
-  var ins = { cards: [] }, o = {}, photoData = null, photoReset = false, seq = 0;
+  var ins = { cards: [] }, o = {}, photoData = null, photoReset = false, seq = 0, gal = [];
+  var TLABELS = [['cta_main', 'Кнопка «Узнать цену»'], ['cta_call', 'Кнопка «Позвонить»'], ['have_title', 'Заголовок «Что у нас есть»'], ['have_sub', 'Подпись под ним'], ['services_title', 'Заголовок списка услуг'],
+    ['how_title', 'Заголовок «Как заказать»'], ['step1_t', 'Шаг 1, заголовок'], ['step1_d', 'Шаг 1, пояснение'], ['step2_t', 'Шаг 2, заголовок'], ['step2_d', 'Шаг 2, пояснение'], ['step3_t', 'Шаг 3, заголовок'], ['step3_d', 'Шаг 3, пояснение'],
+    ['calc_title', 'Заголовок над расчётом'], ['contacts_title', 'Заголовок «Контакты»']];
+  function drawGal() {
+    var gl = $('#gl'); gl.textContent = '';
+    gal.forEach(function (src, i) {
+      var w = el('div', 'th'), im = el('img'); im.src = src.indexOf('data:') === 0 ? src : '../' + src; im.alt = '';
+      var b = el('button', 'b', 'Убрать'); b.type = 'button'; b.addEventListener('click', function () { gal.splice(i, 1); drawGal(); });
+      w.appendChild(im); w.appendChild(b); gl.appendChild(w);
+    });
+  }
   function key() { return 'demo-override:' + C.name + '|' + C.phone; }
   function load() { try { return JSON.parse(localStorage.getItem(key())) || {}; } catch (e) { return {}; } }
   function digits(s) { return String(s).replace(/\D/g, ''); }
@@ -63,7 +74,7 @@ input[type=text],input[type=number],textarea{width:100%;min-height:46px;padding:
     pc.appendChild(img);
     pc.appendChild(el('p', 'hint', 'Главное фото на первом экране. Выберите картинку с телефона или компьютера, она сожмётся автоматически.'));
     var fi = el('input'); fi.type = 'file'; fi.accept = 'image/*'; fi.id = 'pf'; pc.appendChild(fi);
-    fi.addEventListener('change', function () { if (fi.files[0]) shrink(fi.files[0]); });
+    fi.addEventListener('change', function () { if (fi.files[0]) shrink(fi.files[0], 1400); });
     var rs = chk('Вернуть исходное фото', false); rs.i.addEventListener('change', function () { photoReset = rs.i.checked; }); pc.appendChild(rs.l);
     f.appendChild(pc);
     f.appendChild(el('h2', null, 'Описание компании'));
@@ -76,7 +87,24 @@ input[type=text],input[type=number],textarea{width:100%;min-height:46px;padding:
     add.addEventListener('click', function () { machineCard({ id: 'new' + (++seq) + Date.now().toString(36), name: '', desc: '', rate: 3000, min_hours: 4 }, true); });
     f.appendChild(add);
     f.appendChild(el('h2', null, 'Услуги'));
-    var sc = el('div', 'card'); ins.services = field('Что ещё делаете. Одна услуга на строку (до 20)', { rows: 5 }, 'textarea'); ins.services.i.value = (o.services || C.services || []).join('\n'); sc.appendChild(ins.services.l); f.appendChild(sc);
+    var sc = el('div', 'card'); ins.services = field('Дополнительные услуги, если нужны. Одна на строку (до 20)', { rows: 5 }, 'textarea'); ins.services.i.value = (o.services || C.services || []).join('\n'); sc.appendChild(ins.services.l); f.appendChild(sc);
+
+    f.appendChild(el('h2', null, 'Фото-галерея'));
+    var gc = el('div', 'card'); gal = (o.gallery || C.gallery || []).slice();
+    gc.appendChild(el('p', 'hint', 'Дополнительные фото под первым экраном (до 8). Загрузите свои, они сожмутся автоматически.'));
+    var gl = el('div', 'thumbs'); gl.id = 'gl'; gc.appendChild(gl);
+    var gf = el('input'); gf.type = 'file'; gf.accept = 'image/*'; gf.multiple = true; gc.appendChild(gf);
+    gf.addEventListener('change', function () { Array.prototype.slice.call(gf.files, 0, 8).forEach(function (fl) { shrink(fl, 1200, function (d) { if (gal.length < 8) { gal.push(d); drawGal(); } }); }); gf.value = ''; });
+    f.appendChild(gc); drawGal();
+    f.appendChild(el('h2', null, 'Разделы страницы'));
+    var sc2 = el('div', 'card'), S0 = o.sections || C.sections || {}; ins.sec = {};
+    [['how', 'Блок «Как заказать» (три шага)'], ['services', 'Список «Ещё делаем»'], ['gallery', 'Фото-галерея']].forEach(function (p) { var c2 = chk(p[1], S0[p[0]] !== false); ins.sec[p[0]] = c2.i; sc2.appendChild(c2.l); });
+    f.appendChild(sc2);
+    f.appendChild(el('h2', null, 'Тексты на странице'));
+    f.appendChild(el('p', 'hint', 'Любую подпись и заголовок можно поменять. Пустое поле вернёт обычный текст.'));
+    var tc = el('div', 'card'), T0 = o.texts || C.texts || {}; ins.texts = {};
+    TLABELS.forEach(function (p) { var x = field(p[1], { type: 'text', maxLength: 120, value: T0[p[0]] || '' }); ins.texts[p[0]] = x.i; tc.appendChild(x.l); });
+    f.appendChild(tc);
     f.appendChild(el('h2', null, 'Районы и доставка'));
     f.appendChild(el('p', 'hint', 'Сколько прибавить к цене за выезд: от какой суммы до какой.'));
     ins.z = {};
@@ -99,14 +127,16 @@ input[type=text],input[type=number],textarea{width:100%;min-height:46px;padding:
     ins.address = field('Адрес', { type: 'text', maxLength: 160, value: o.address != null ? o.address : (C.address || '') });
     [ins.phone, ins.whatsapp, ins.hours, ins.address].forEach(function (x) { cc.appendChild(x.l); }); f.appendChild(cc);
   }
-  function shrink(file) {
+  function shrink(file, maxSide, cb) {
     if (!/^image\//.test(file.type)) { say('err', 'Это не картинка.'); return; }
     var im = new Image(), url = URL.createObjectURL(file);
     im.onload = function () {
-      var k = Math.min(1, 1400 / Math.max(im.width, im.height)), cv = document.createElement('canvas');
+      var k = Math.min(1, (maxSide || 1400) / Math.max(im.width, im.height)), cv = document.createElement('canvas');
       cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k);
       cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
-      photoData = cv.toDataURL('image/jpeg', 0.8); $('#pv').hidden = false; $('#pv').src = photoData; URL.revokeObjectURL(url);
+      var d = cv.toDataURL('image/jpeg', 0.78); URL.revokeObjectURL(url);
+      if (cb) { cb(d); return; }
+      photoData = d; $('#pv').hidden = false; $('#pv').src = photoData;
     };
     im.onerror = function () { say('err', 'Не удалось открыть картинку.'); };
     im.src = url;
@@ -136,6 +166,9 @@ input[type=text],input[type=number],textarea{width:100%;min-height:46px;padding:
     var hr = ins.hours.i.value.trim(); if (!hr || hr.length > 120) errs.push('График работы: до 120 символов.'); else out.hours = hr;
     var ad = ins.address.i.value.trim(); if (ad.length > 160) errs.push('Адрес: до 160 символов.'); else out.address = ad;
     out.rates_are_example = !ins.confirmed.i.checked;
+    out.texts = {}; Object.keys(ins.texts).forEach(function (k) { var v = ins.texts[k].value.trim(); if (v.length > 120) errs.push('Текст «' + k + '»: до 120 символов.'); else if (v) out.texts[k] = v; });
+    out.sections = {}; Object.keys(ins.sec).forEach(function (k) { out.sections[k] = ins.sec[k].checked; });
+    out.gallery = gal.slice();
     if (photoData && !photoReset) out.photo = photoData; else if (!photoReset && o.photo) out.photo = o.photo;
     if (errs.length) { var d = el('div', 'err'), u = el('ul'); d.appendChild(el('b', null, 'Не сохранено:')); errs.forEach(function (e) { u.appendChild(el('li', null, e)); }); d.appendChild(u); $('#msg').textContent = ''; $('#msg').appendChild(d); window.scrollTo(0, 0); return; }
     try { localStorage.setItem(key(), JSON.stringify(out)); say('ok', 'Сохранено. Нажмите «Открыть страницу», чтобы увидеть изменения.'); }
